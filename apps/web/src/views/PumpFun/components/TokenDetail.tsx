@@ -40,10 +40,11 @@ const Progress = styled.div<{ width: string }>`
 
 interface TokenDetailProps {
   tokenAddress: string;
+  tokenInfo: any;
   onBack: () => void;
 }
 
-const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
+const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenInfo }) => {
   const router = useRouter();
   const [owners, setOwners] = useState([]);
   const [transfers, setTransfers] = useState([]);
@@ -77,17 +78,16 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
 
       try {
         const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
-        const tokenData = await contract.getMemeToken(tokenAddress);
+        
         setTokenDetails({
-          name: tokenData.name,
-          symbol: tokenData.symbol,
-          description: tokenData.description,
-          tokenImageUrl: tokenData.tokenImageUrl,
-          fundingRaised: ethers.utils.formatEther(tokenData.fundingRaised),
-          creatorAddress: tokenData.creatorAddress,
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          description: tokenInfo.description,
+          tokenImageUrl: tokenInfo.tokenImageUrl,
+          fundingRaised: `${tokenInfo.fundingRaised} ETH`, 
+          creatorAddress: tokenInfo.creatorAddress,
         });
-
+        console.log(tokenInfo)
         const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
         const totalSupplyResponse = await tokenContract.totalSupply();
         const totalSupplyFormatted = ethers.utils.formatEther(totalSupplyResponse);

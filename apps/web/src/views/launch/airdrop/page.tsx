@@ -130,71 +130,83 @@ const Airdrop: React.FC = () => {
       setErrorMessage('Please enter token address and allocations');
       return;
     }
-
+  
     setIsLoading(true);
     setErrorMessage("");
-
+  
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       const signerAddress = await signer.getAddress();
-
+  
       console.log('Signer address:', signerAddress);
-
+  
+      // Validate token address
+      if (!ethers.utils.isAddress(tokenAddress)) {
+        throw new Error("Invalid token address");
+      }
+  
       const tokenContract = new ethers.Contract(tokenAddress, IBEP20_ABI, signer);
       const decimals = await tokenContract.decimals();
       console.log('Token decimals:', decimals);
-
-      const [address, amount] = allocations.split(' ');
+  
+      // Validate and parse allocations
+      const [address, amount] = allocations.trim().split(/\s+/);
+      if (!ethers.utils.isAddress(address)) {
+        throw new Error("Invalid recipient address");
+      }
       const parsedAmount = ethers.utils.parseUnits(amount, decimals);
       console.log('Parsed amount:', parsedAmount.toString());
-
+  
       const balance = await tokenContract.balanceOf(signerAddress);
       console.log('Token balance:', balance.toString());
-
+  
       if (balance.lt(parsedAmount)) {
         throw new Error("Insufficient token balance");
       }
-
+  
       // Check current allowance
       let currentAllowance = await tokenContract.allowance(signerAddress, airdropContractAddress);
       console.log('Current allowance:', currentAllowance.toString());
-
+  
       if (currentAllowance.lt(parsedAmount)) {
         console.log('Approving tokens...');
         const approveTx = await tokenContract.approve(airdropContractAddress, ethers.constants.MaxUint256);
         await approveTx.wait();
         console.log('Token approval transaction hash:', approveTx.hash);
-
+  
+        // Adding a small delay to ensure allowance is updated
+        await new Promise(resolve => setTimeout(resolve, 5000));
+  
         // Check allowance again after approval
         currentAllowance = await tokenContract.allowance(signerAddress, airdropContractAddress);
         console.log('New allowance after approval:', currentAllowance.toString());
-
+  
         if (currentAllowance.lt(parsedAmount)) {
           throw new Error("Failed to set sufficient allowance");
         }
       }
-
+  
       const airdropContract = new ethers.Contract(airdropContractAddress, AIRDROP_ABI, signer);
+  
+      // Set a manual gas limit since estimateGas is failing
+      const manualGasLimit = ethers.BigNumber.from("50000000"); // Adjust this value as needed
+  
+      console.log('Performing airdrop with manual gas limit...');
 
-      // Use a manual gas limit
-      const gasLimit = ethers.BigNumber.from('500000'); // Adjust this value as needed
-      console.log('Using manual gas limit:', gasLimit.toString());
-
-      console.log('Performing airdrop...');
-      const airdropTx = await airdropContract.airDrop(tokenAddress, [address], [parsedAmount], {
-        gasLimit
+      const airdropTx = await airdropContract.airDrop(tokenAddress, [address], [amount], {
+        gasLimit: manualGasLimit
       });
       console.log('Airdrop transaction hash:', airdropTx.hash);
       
       const receipt = await airdropTx.wait();
       console.log('Transaction receipt:', receipt);
-
+  
       if (receipt.status === 0) {
         throw new Error("Transaction failed");
       }
-
+  
       console.log('Airdrop successful');
       alert('Airdrop created successfully!');
     } catch (error: any) {
@@ -207,6 +219,8 @@ const Airdrop: React.FC = () => {
       setIsLoading(false);
     }
   };
+  
+  
 
   return (
     <Box maxWidth="480px" margin="0 auto" padding="24px">
