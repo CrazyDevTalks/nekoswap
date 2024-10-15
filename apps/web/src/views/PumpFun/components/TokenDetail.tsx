@@ -49,7 +49,7 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenIn
   const [owners, setOwners] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [totalSupply, setTotalSupply] = useState('0');
+  const [totalSupply, setTotalSupply] = useState(0);
   const [remainingTokens, setRemainingTokens] = useState('0');
   const [purchaseAmount, setPurchaseAmount] = useState('');
   const [cost, setCost] = useState('0');
@@ -91,7 +91,7 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenIn
         const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
         const totalSupplyResponse = await tokenContract.totalSupply();
         const totalSupplyFormatted = ethers.utils.formatEther(totalSupplyResponse);
-        setTotalSupply(totalSupplyFormatted);
+        setTotalSupply(parseFloat(totalSupplyFormatted));
 
         setRemainingTokens((maxSupply - parseFloat(totalSupplyFormatted)).toString());
       } catch (error) {
@@ -113,7 +113,7 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenIn
   }
 
   const fundingRaisedPercentage = (fundingRaised / fundingGoal) * 100;
-  const totalSupplyPercentage = ((parseFloat(totalSupply) - 200000) / (maxSupply - 200000)) * 100;
+  const totalSupplyPercentage = ((totalSupply - 200000) / (maxSupply - 200000)) * 100;
 
   const getCost = async () => {
     if (!purchaseAmount) return;
@@ -122,6 +122,7 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenIn
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
       const costInWei = await contract.calculateCost(totalSupply, purchaseAmount);
+
       setCost(ethers.utils.formatEther(costInWei));
       setIsModalOpen(true);
     } catch (error) {
@@ -134,7 +135,6 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenIn
       const provider = new ethers.providers.Web3Provider(window.ethereum as any);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-
       const transaction = await contract.buyMemeToken(tokenAddress, purchaseAmount, {
         value: ethers.utils.parseEther(cost),
       });
