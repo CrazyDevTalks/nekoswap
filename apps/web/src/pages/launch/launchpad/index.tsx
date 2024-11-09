@@ -1,3 +1,3 @@
-import Launchpad from 'views/launch/launchpad/page.js'
+import PresalePage from 'views/launch/launchpad/page'
 
-export default Launchpad
+export default PresalePage

@@ -1,10 +1,52 @@
 import React, { useState } from "react";
 import { Box, Flex, Heading, PageSection, Button, Card, Text } from '@pancakeswap/uikit';
-import { Form, message } from 'antd';
+import { Form, message, Input } from 'antd';
+import styled from 'styled-components';
 import useTheme from 'hooks/useTheme';
 import useContractWriteHook from './contract-write';
 import StandardToken from "./StandardToken";
 import LiquidityToken from "./LiquidityToken";
+
+const StyledCard = styled(Card)`
+  background: ${({ theme }) => theme.colors.backgroundAlt};
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 630px; // Increased to match other pages
+`;
+
+const InputWrapper = styled.div`
+  margin-bottom: 24px;
+  padding: 0 16px;
+`;
+
+const InputLabel = styled(Text)`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 8px;
+  padding-left: 16px; // Add left padding to prevent text cut-off
+`;
+
+const StyledSelect = styled.select`
+  background-color: ${({ theme }) => theme.colors.input};
+  border: 1px solid ${({ theme }) => theme.colors.inputSecondary};
+  border-radius: 16px;
+  color: ${({ theme }) => theme.colors.text};
+  display: block;
+  font-size: 16px;
+  height: 40px;
+  outline: 0;
+  padding: 0 16px;
+  width: 100%;
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.backgroundDisabled};
+    box-shadow: none;
+    color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
+  }
+`;
 
 const CreateToken: React.FC = () => {
   const { theme } = useTheme();
@@ -64,34 +106,37 @@ const CreateToken: React.FC = () => {
       hasCurvedDivider={false}
     >
       {contextHolder}
-      <Box maxWidth="480px" margin="0 auto" position="relative">
+      <Box maxWidth="630px" margin="0 auto" position="relative"> {/* Changed from 480px to 630px */}
         <Heading scale="xl" mb="24px" textAlign="center">Create Token</Heading>
-        <Card>
+        <StyledCard>
           <Form form={form} onFinish={handleCreateToken} layout="vertical">
-            <Box mb="24px">
-              <Text fontSize="14px">Select Token Type</Text>
-              <select
+            <InputWrapper>
+              <InputLabel>Select Token Type</InputLabel>
+              <StyledSelect
                 value={selectedTokenType}
                 onChange={handleSelectChange}
-                style={{ width: '100%', padding: '8px', fontSize: '16px' }}
               >
                 <option value="standard">Standard Token</option>
                 <option value="liquidity">Liquidity Token</option>
-              </select>
-            </Box>
+              </StyledSelect>
+            </InputWrapper>
 
             {selectedTokenType === "standard" ? <StandardToken /> : <LiquidityToken />}
 
-            <Flex justifyContent="space-between" mt="24px">
-              <Button variant="secondary" onClick={() => form.resetFields()}>
-                Reset
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Creating...' : 'Create New Token'}
-              </Button>
+            <Flex justifyContent="center" mt="24px"> {/* Changed from space-between to center */}
+              <Box mr="16px">
+                <Button variant="secondary" onClick={() => form.resetFields()}>
+                  Reset
+                </Button>
+              </Box>
+              <Box>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? 'Creating...' : 'Create New Token'}
+                </Button>
+              </Box>
             </Flex>
           </Form>
-        </Card>
+        </StyledCard>
       </Box>
     </PageSection>
   );

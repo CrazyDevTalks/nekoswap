@@ -83,8 +83,8 @@ export const Menu = ({ children }: { children: ReactNode }) => {
       subLinks={activeMenuItem?.hideSubNav || activeSubMenuItem?.hideSubNav ? [] : activeMenuItem?.items}
       activeSubItem={activeSubMenuItem?.href}
       toggleTheme={toggleTheme}
-      buyCakeLabel={t('Buy CAKE')}
-      buyCakeLink="https://aptos.pancakeswap.finance/swap?outputCurrency=0x159df6b7689437016108a019fd5bef736bac692b6d4a1f10c941f6fbb9a74ca6::oft::CakeOFT"
+      buyCakeLabel={t('Trade Now')}
+      buyCakeLink="/swap"
     >
       {children}
     </UIMenu>

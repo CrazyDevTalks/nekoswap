@@ -1,34 +1,64 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { Box, Flex, Heading, Button, Text, Input } from '@pancakeswap/uikit';
+import React, { useState } from "react";
+import { Box, Flex, Heading, PageSection, Button, Card, Text } from '@pancakeswap/uikit';
 import styled from 'styled-components';
+import useTheme from 'hooks/useTheme';
 import { ethers } from 'ethers';
+import { useRouter } from 'next/router';
 import { abi } from './abi';
 import { CONTRACT_ADDRESS } from '../inputs';
+import ImageUpload from './ImageUpload';
 
 
-const CenteredBox = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+const StyledCard = styled(Card)`
+  background: ${({ theme }) => theme.colors.backgroundAlt};
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 630px;
 `;
 
-const StyledInput = styled(Input)`
-  margin-bottom: 16px;
-  width: 50%;
+const InputWrapper = styled.div`
+  margin-bottom: 24px;
+  padding: 0 16px;
 `;
 
-const DescriptionInput = styled(Input)`
-  margin-bottom: 16px;
-  width: 50%;
-  height: 100px;
+const InputLabel = styled(Text)`
+  font-size: 14px;
+  color: ${({ theme }) => theme.colors.text};
+  margin-bottom: 8px;
+  padding-left: 16px;
+`;
+
+const StyledInput = styled.input`
+  background-color: ${({ theme }) => theme.colors.input};
+  border: 1px solid ${({ theme }) => theme.colors.inputSecondary};
+  border-radius: 16px;
+  color: ${({ theme }) => theme.colors.text};
+  display: block;
+  font-size: 16px;
+  height: 40px;
+  outline: 0;
+  padding: 0 16px;
+  width: 100%;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.textSubtle};
+  }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.backgroundDisabled};
+    box-shadow: none;
+    color: ${({ theme }) => theme.colors.textDisabled};
+    cursor: not-allowed;
+  }
 `;
 
 const InfoText = styled(Text)`
   color: ${({ theme }) => theme.colors.textSubtle};
   font-size: 14px;
-  margin-bottom: 8px;
+  text-align: center;
+  margin-bottom: 24px;
 `;
 
 interface TokenCreateProps {
@@ -36,7 +66,7 @@ interface TokenCreateProps {
 }
 
 const TokenCreate: React.FC<TokenCreateProps> = ({ onBack }) => {
-  const router = useRouter();
+  const { theme } = useTheme();
   const [name, setName] = useState('');
   const [ticker, setTicker] = useState('');
   const [description, setDescription] = useState('');
@@ -64,7 +94,6 @@ const TokenCreate: React.FC<TokenCreateProps> = ({ onBack }) => {
       console.log('Transaction confirmed:', receipt);
 
       alert(`Token created successfully! Transaction hash: ${receipt.hash}`);
-      onBack();
     } catch (error: unknown) {
       console.error('Full error object:', error);
       if (error instanceof Error) {
@@ -78,36 +107,74 @@ const TokenCreate: React.FC<TokenCreateProps> = ({ onBack }) => {
     }
   };
 
+
   return (
-    <CenteredBox>
-      <Button onClick={onBack} mb="24px">Back to Home</Button>
-      <InfoText>MemeCoin creation fee: 0.0001 ETH</InfoText>
-      <InfoText>Max supply: 1 million tokens. Initial mint: 200k tokens.</InfoText>
-      <InfoText>If funding target of 24 ETH is met, a liquidity pool will be created on Uniswap.</InfoText>
-      <Heading scale="lg" mt="24px" mb="24px">Create New Token</Heading>
-      <StyledInput 
-        placeholder="Token Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <StyledInput 
-        placeholder="Token Symbol"
-        value={ticker}
-        onChange={(e) => setTicker(e.target.value)}
-      />
-      <DescriptionInput 
-        as="textarea"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <StyledInput 
-        placeholder="Image URL"
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-      />
-      <Button onClick={handleCreateToken}>Create Token</Button>
-    </CenteredBox>
+    <PageSection
+      innerProps={{ style: { margin: '0', width: '100%' } }}
+      background={theme.colors.background}
+      index={1}
+      hasCurvedDivider={false}
+    >
+      <Box maxWidth="630px" margin="0 auto" position="relative">
+        <Heading scale="xl" mb="24px" textAlign="center">Create Token</Heading>
+        <StyledCard>
+          <InfoText>
+            MemeCoin creation fee: 0.0001 ETH
+            <br />
+            Max supply: 1 million tokens. Initial mint: 200k tokens.
+            <br />
+            If funding target of 24 ETH is met, a liquidity pool will be created on NekoSwap.
+          </InfoText>
+
+          <InputWrapper>
+            <InputLabel>Token Name</InputLabel>
+            <StyledInput
+              placeholder="Ex: Ethereum"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </InputWrapper>
+
+          <InputWrapper>
+            <InputLabel>Token Symbol</InputLabel>
+            <StyledInput
+              placeholder="Ex: ETH"
+              value={ticker}
+              onChange={(e) => setTicker(e.target.value)}
+            />
+          </InputWrapper>
+
+          <InputWrapper>
+            <InputLabel>Description</InputLabel>
+            <StyledInput
+              as="textarea"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{ height: '100px' }}
+            />
+          </InputWrapper>
+
+          <InputWrapper>
+            <InputLabel>Token Image</InputLabel>
+            <ImageUpload onImageUploaded={(url) => setImageUrl(url)} />
+          </InputWrapper>
+
+          <Flex justifyContent="center" mt="24px">
+            <Box mr="16px">
+              <Button variant="secondary" onClick={onBack}>
+                Back
+              </Button>
+            </Box>
+            <Box>
+              <Button onClick={handleCreateToken}>
+                Create New Token
+              </Button>
+            </Box>
+          </Flex>
+        </StyledCard>
+      </Box>
+    </PageSection>
   );
 };
 

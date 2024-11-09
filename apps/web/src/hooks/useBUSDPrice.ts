@@ -8,6 +8,7 @@ import {
   Token,
   WNATIVE,
   WBNB,
+  WBTC,
   ERC20Token,
   WETH9,
 } from '@pancakeswap/sdk'
@@ -205,3 +206,16 @@ export const useBNBBusdPrice = (
   const wbnb: Token = isTestnet ? WBNB[ChainId.BSC_TESTNET] : WBNB[ChainId.BSC]
   return usePriceByPairs(BUSD[wbnb.chainId], wbnb)
 }
+
+/* 
+// @Note: only fetch from one pair
+export const useBTCBusdPrice = (
+  { forceMainnet } = { forceMainnet: false },
+): Price<ERC20Token, ERC20Token> | undefined => {
+  const { chainId } = useActiveChainId()
+  const isTestnet = !forceMainnet && isChainTestnet(chainId)
+  // Return bsc testnet wbnb if chain is testnet
+  const wbnb: Token = isTestnet ? WBTC[ChainId.BSC_TESTNET] : WBTC[ChainId.BSC]
+  return usePriceByPairs(BUSD[wbnb.chainId], WBTC)
+} 
+*/

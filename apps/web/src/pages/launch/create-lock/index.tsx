@@ -1,3 +1,3 @@
-import CreateLocks from 'views/launch/create-lock/page.js'
+import CreateLocks from 'views/launch/create-lock/page'
 
 export default CreateLocks

@@ -12,6 +12,7 @@ import {
   StyledText,
   StyledToolsContainer,
 } from "./styles";
+import Logo from "../../widgets/Menu/components/Logo";
 
 import { Button } from "../Button";
 import CakePrice from "../CakePrice/CakePrice";
@@ -44,7 +45,8 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
     >
       <Flex flexDirection="column" width={["100%", null, "1200px;"]}>
         <StyledIconMobileContainer display={["block", null, "none"]}>
-          <LogoWithTextIcon width="130px" />
+          {/* Replace LogoWithTextIcon with your Logo component */}
+          <Logo href="/" isDark={isDark} />
         </StyledIconMobileContainer>
         <Flex
           order={[2, null, 1]}
@@ -77,9 +79,11 @@ const MenuItem: React.FC<React.PropsWithChildren<FooterProps>> = ({
             </StyledList>
           ))}
           <Box display={["none", null, "block"]}>
-            <LogoWithTextIcon width="160px" />
+            {/* Replace LogoWithTextIcon with your Logo component */}
+            <Logo href="/" isDark={isDark} />
           </Box>
         </Flex>
+
         <StyledSocialLinks order={[2]} pb={["42px", null, "32px"]} mb={["0", null, "32px"]} />
         <StyledToolsContainer
           data-theme="dark"

@@ -76,6 +76,7 @@
     "local-storage": "^2.0.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.454.0",
     "next": "13.2.4",
     "next-axiom": "^0.13.0",
     "next-image-export-optimizer": "^1.8.5",
@@ -111,6 +112,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@goplus/sdk-node": "^1.0.12",
     "@next/eslint-plugin-next": "13.2.4",
     "@stylelint/postcss-css-in-js": "^0.37.2",
     "@testing-library/jest-dom": "^5.16.2",

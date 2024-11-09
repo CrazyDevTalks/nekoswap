@@ -98,8 +98,8 @@ const defaultProps = {
     </>
   ),
   activeItem: "/swap",
-  activeSubItem: "https://exchange.pancakeswap.finance",
-  buyCakeLabel: "Buy CAKE",
+  activeSubItem: "/swap",
+  buyCakeLabel: "Trade Now",
 };
 
 const ConnectedTemplate: React.FC<React.PropsWithChildren<NavProps>> = (args) => {

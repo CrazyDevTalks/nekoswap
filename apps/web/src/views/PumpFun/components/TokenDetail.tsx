@@ -13,8 +13,8 @@ const StyledInput = styled(Input)`
 `;
 
 const ImageContainer = styled.div`
-  width: 200px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   margin: 0 auto;
   img {
     width: 100%;
@@ -38,21 +38,72 @@ const Progress = styled.div<{ width: string }>`
   border-radius: 10px;
 `;
 
+const CenteredBox = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+`;
+
+const ModalBox = styled(Box)`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+`;
+
+const ArrowWrapper = styled(Box)`
+  display: flex;
+  align-items: center;
+  padding-top: 36px; // This will align it with the input fields, adjust the value if needed
+`;
+
+const InputGroup = styled(Box)`
+  display: flex;
+  align-items: flex-start; // Changed from center to flex-start
+  gap: 16px;
+  margin-bottom: 16px;
+`;
+
+const InputWrapper = styled(Box)`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+`;
+
 interface TokenDetailProps {
   tokenAddress: string;
+  tokenInfo: any;
   onBack: () => void;
 }
 
-const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
+const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack, tokenInfo }) => {
   const router = useRouter();
   const [owners, setOwners] = useState([]);
   const [transfers, setTransfers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [totalSupply, setTotalSupply] = useState('0');
+  const [totalSupply, setTotalSupply] = useState(0);
   const [remainingTokens, setRemainingTokens] = useState('0');
-  const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [cost, setCost] = useState('0');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ethAmount, setEthAmount] = useState('');
+  const [tokenAmount, setTokenAmount] = useState('');
+  const [calculating, setCalculating] = useState(false);
   const [tokenDetails, setTokenDetails] = useState({
     name: 'Unknown',
     symbol: 'Unknown',
@@ -62,11 +113,13 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
     creatorAddress: '0x0000000000000000000000000000000000000000',
   });
 
-
-
   const fundingRaised = parseFloat(tokenDetails.fundingRaised.replace(' ETH', ''));
   const fundingGoal = 24;
   const maxSupply = 800000;
+
+  const formatEth = (value: string | number) => {
+    return parseFloat(value.toString()).toFixed(3);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,23 +130,24 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
 
       try {
         const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
-        const tokenData = await contract.getMemeToken(tokenAddress);
+        
         setTokenDetails({
-          name: tokenData.name,
-          symbol: tokenData.symbol,
-          description: tokenData.description,
-          tokenImageUrl: tokenData.tokenImageUrl,
-          fundingRaised: ethers.utils.formatEther(tokenData.fundingRaised),
-          creatorAddress: tokenData.creatorAddress,
+          name: tokenInfo.name,
+          symbol: tokenInfo.symbol,
+          description: tokenInfo.description,
+          tokenImageUrl: tokenInfo.tokenImageUrl,
+          fundingRaised: `${formatEth(tokenInfo.fundingRaised)} ETH`,
+          creatorAddress: tokenInfo.creatorAddress,
         });
 
         const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
         const totalSupplyResponse = await tokenContract.totalSupply();
         const totalSupplyFormatted = ethers.utils.formatEther(totalSupplyResponse);
-        setTotalSupply(totalSupplyFormatted);
+        setTotalSupply(parseFloat(totalSupplyFormatted));
 
-        setRemainingTokens((maxSupply - parseFloat(totalSupplyFormatted)).toString());
+        // Calculate remaining tokens with floor at 0
+        const remaining = Math.max(0, maxSupply - parseFloat(totalSupplyFormatted));
+        setRemainingTokens(remaining.toString());
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -102,7 +156,101 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
     };
 
     fetchData();
-  }, [tokenAddress]);
+  }, [tokenAddress, tokenInfo]);
+
+  const calculateTokensFromEth = async (ethValue: string) => {
+    if (!ethValue || parseFloat(ethValue) === 0) {
+      setTokenAmount('');
+      return;
+    }
+
+    try {
+      setCalculating(true);
+      const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+      const tokensOut = await contract.calculateTokensFromEth(totalSupply, ethers.utils.parseEther(ethValue));
+      const calculatedTokens = ethers.utils.formatEther(tokensOut);
+      
+      // Ensure we don't exceed remaining tokens
+      const maxTokens = parseFloat(remainingTokens);
+      const tokenValue = Math.min(parseFloat(calculatedTokens), maxTokens);
+      setTokenAmount(tokenValue.toString());
+      
+      // Recalculate ETH if we had to cap the tokens
+      if (tokenValue < parseFloat(calculatedTokens)) {
+        calculateEthFromTokens(tokenValue.toString());
+      }
+    } catch (error) {
+      console.error('Error calculating tokens:', error);
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  const calculateEthFromTokens = async (tokenValue: string) => {
+    if (!tokenValue || parseFloat(tokenValue) === 0) {
+      setEthAmount('');
+      return;
+    }
+
+    try {
+      setCalculating(true);
+      const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+      const costInWei = await contract.calculateCost(totalSupply, tokenValue);
+      setEthAmount(ethers.utils.formatEther(costInWei));
+    } catch (error) {
+      console.error('Error calculating cost:', error);
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  const handleEthInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEthAmount(value);
+    calculateTokensFromEth(value);
+  };
+
+  const handleTokenInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Ensure we don't exceed remaining tokens
+    const maxTokens = parseFloat(remainingTokens);
+    const inputTokens = parseFloat(value);
+    if (inputTokens > maxTokens) {
+      setTokenAmount(maxTokens.toString());
+      calculateEthFromTokens(maxTokens.toString());
+    } else {
+      setTokenAmount(value);
+      calculateEthFromTokens(value);
+    }
+  };
+
+  const handlePurchase = async () => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+      const transaction = await contract.buyMemeToken(tokenAddress, tokenAmount, {
+        value: ethers.utils.parseEther(ethAmount),
+      });
+      const receipt = await transaction.wait();
+
+      alert(`Transaction successful! Hash: ${receipt.hash}`);
+      setIsModalOpen(false);
+      setEthAmount('');
+      setTokenAmount('');
+      
+      // Refresh data after purchase
+      const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, provider);
+      const totalSupplyResponse = await tokenContract.totalSupply();
+      const totalSupplyFormatted = ethers.utils.formatEther(totalSupplyResponse);
+      setTotalSupply(parseFloat(totalSupplyFormatted));
+    } catch (error) {
+      console.error('Error during purchase:', error);
+      alert('Transaction failed. Please try again.');
+    }
+  };
 
   if (loading) {
     return <Text>Loading token details...</Text>;
@@ -112,49 +260,15 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
     return <Text>No token address provided</Text>;
   }
 
-  const fundingRaisedPercentage = (fundingRaised / fundingGoal) * 100;
-  const totalSupplyPercentage = ((parseFloat(totalSupply) - 200000) / (maxSupply - 200000)) * 100;
-
-  const getCost = async () => {
-    if (!purchaseAmount) return;
-
-    try {
-      const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
-      const costInWei = await contract.calculateCost(totalSupply, purchaseAmount);
-      setCost(ethers.utils.formatEther(costInWei));
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error('Error calculating cost:', error);
-    }
-  };
-
-  const handlePurchase = async () => {
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-
-      const transaction = await contract.buyMemeToken(tokenAddress, purchaseAmount, {
-        value: ethers.utils.parseEther(cost),
-      });
-      const receipt = await transaction.wait();
-
-      alert(`Transaction successful! Hash: ${receipt.hash}`);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Error during purchase:', error);
-    }
-  };
-
-  if (!tokenAddress) {
-    return <Text>No token address provided</Text>;
-  }
+  const fundingRaisedPercentage = Math.min(100, (fundingRaised / fundingGoal) * 100);
+  const totalSupplyPercentage = Math.min(100, ((totalSupply - 200000) / (maxSupply - 200000)) * 100);
 
   return (
     <Box>
-      <Button onClick={onBack}>Back to Home</Button>
-      <Heading scale="xl" mb="24px">{tokenDetails.name} Details</Heading>
+      <CenteredBox>
+        <Button onClick={onBack} mb="16px">Back to Home</Button>
+        <Heading scale="xl" mb="24px">{tokenDetails.name} Details</Heading>
+      </CenteredBox>
       <Flex>
         <Box width="50%">
           <ImageContainer>
@@ -168,7 +282,7 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
         </Box>
         <Box width="50%">
           <Heading scale="lg">Bonding Curve Progress</Heading>
-          <Text>{fundingRaised} / {fundingGoal} ETH</Text>
+          <Text>{formatEth(fundingRaised)} / {formatEth(fundingGoal)} ETH</Text>
           <ProgressBar>
             <Progress width={`${fundingRaisedPercentage}%`} />
           </ProgressBar>
@@ -181,30 +295,61 @@ const TokenDetail: React.FC<TokenDetailProps> = ({ tokenAddress, onBack }) => {
           </ProgressBar>
 
           <Heading scale="lg" mt="24px">Buy Tokens</Heading>
-          <StyledInput 
-            type="number"
-            placeholder="Enter amount of tokens to buy"
-            value={purchaseAmount}
-            onChange={(e) => setPurchaseAmount(e.target.value)}
-          />
-          <Button onClick={getCost}>Purchase</Button>
+          <InputGroup>
+            <InputWrapper>
+              <Text>{tokenDetails.symbol} Amount</Text>
+              <Input 
+                type="number"
+                placeholder={`Enter ${tokenDetails.symbol} amount`}
+                value={tokenAmount}
+                onChange={handleTokenInputChange}
+                min="0"
+                max={remainingTokens}
+                step="0.000000000000000001"
+              />
+            </InputWrapper>
+            <ArrowWrapper>
+              <Text>→</Text>
+            </ArrowWrapper>
+            <InputWrapper>
+              <Text>ETH Amount</Text>
+              <Input 
+                type="number"
+                placeholder="Enter ETH amount"
+                value={ethAmount}
+                onChange={handleEthInputChange}
+                min="0"
+                step="0.000000000000000001"
+              />
+            </InputWrapper>
+          </InputGroup>
+          {calculating && <Text>Calculating...</Text>}
+          <Button 
+            onClick={() => setIsModalOpen(true)} 
+            disabled={!ethAmount || !tokenAmount || calculating}
+          >
+            Purchase
+          </Button>
         </Box>
       </Flex>
 
       {isModalOpen && (
-        <Box>
-          <Heading scale="lg">Confirm Purchase</Heading>
-          <Text>Cost of {purchaseAmount} tokens: {cost} ETH</Text>
-          <Button onClick={handlePurchase}>Confirm</Button>
-          <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
-        </Box>
+        <>
+          <Overlay onClick={() => setIsModalOpen(false)} />
+          <ModalBox>
+            <Heading scale="lg" mb="16px">Confirm Purchase</Heading>
+            <Text mb="8px">You will spend: {ethAmount} ETH</Text>
+            <Text mb="16px">You will receive: {tokenAmount} tokens</Text>
+            <Flex gap="8px">
+              <Button onClick={handlePurchase}>Confirm</Button>
+              <Button variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            </Flex>
+          </ModalBox>
+        </>
       )}
 
-      <Heading scale="lg" mt="24px">Owners</Heading>
+      <Heading scale="lg" mt="24px">Top 10 Owners</Heading>
       {/* Add owners table here */}
-
-      <Heading scale="lg" mt="24px">Transfers</Heading>
-      {/* Add transfers table here */}
     </Box>
   );
 };

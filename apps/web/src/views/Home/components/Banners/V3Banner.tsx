@@ -229,7 +229,7 @@ const V3Banner = () => {
           </StyledSubheading>
           <NextLinkFromReactRouter
             target="_blank"
-            to="https://blog.pancakeswap.finance/articles/participate-in-pancake-swap-v3-launch-claim-135-k-cake-airdrop-and-receive-an-exclusive-nft-for-early-supporters"
+            to="https://nekoprotocol.gitbook.io/nekoswap/tokenomics-and-airdrop/nekoswap-aidrop"
             rel='"noopener noreferrer'
           >
             <StyledButtonLeft scale={isMobile ? 'sm' : 'md'}>

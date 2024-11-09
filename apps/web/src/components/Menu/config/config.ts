@@ -53,17 +53,20 @@ const config: (
           label: t('Swap'),
           href: '/swap',
         },
-        /*{
+        /*
+        {
           label: t('Limit'),
           href: '/limit-orders',
           supportChainIds: SUPPORT_ONLY_BSC,
           image: '/images/decorations/3d-coin.png',
-        },*/
+        },
+        */
         {
           label: t('Liquidity'),
           href: '/liquidity',
         },
-        /*{
+        /*
+        {
           label: t('Perpetual'),
           href: getPerpetualUrl({
             chainId,
@@ -77,7 +80,8 @@ const config: (
           label: t('Bridge'),
           href: 'https://bridge.pancakeswap.finance/',
           type: DropdownMenuItemType.EXTERNAL_LINK,
-        },*/
+        },
+        */
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {
@@ -87,10 +91,12 @@ const config: (
       fillIcon: EarnFillIcon,
       image: '/images/decorations/pe2.png',
       items: [
-        /*{
+        /*
+        {
           label: t('Farms'),
           href: '/farms',
-        },*/
+        },
+        */
         {
           label: t('Liquidity'),
           href: '/liquidity',
@@ -130,20 +136,20 @@ const config: (
           label: t('Fair-Launch'),
           href: '/launch/fair-launch',
         },
-        {
-          label: t('Presale'),
-          href: '/launch/launchpad',
-        },
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
   {
-     label: t('PumpFun'),
+     label: t('Launchpad'),
      href: '/pumpfun',
      icon: EarnIcon,
      fillIcon: EarnFillIcon,
      image: '/images/decorations/pe2.png',
      supportChainIds: SUPPORT_FARMS,
      items: [
+      {
+        label: t('Presale'),
+        href: '/launch/launchpad',
+      },
        {
          label: t('PumpFun'),
          href: '/pumpfun',
@@ -151,13 +157,28 @@ const config: (
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {
+      label: t('Token Audit'),
+      href: '/flashaudit',
+      icon: EarnIcon,
+      fillIcon: EarnFillIcon,
+      image: '/images/decorations/pe2.png',
+      supportChainIds: SUPPORT_FARMS,
+      items: [
+        {
+        label: t('Token Audit'),
+        href: '/flashaudit',
+        },
+       ].map((item) => addMenuItemSupported(item, chainId)),
+     },
+    {
       label: t('Games'),
       href: '/lottery',
       icon: TrophyIcon,
       fillIcon: TrophyFillIcon,
       supportChainIds: SUPPORT_FARMS,
       items: [
-        /*{
+        /*
+        {
           label: t('Trading Competition'),
           href: '/competition',
           image: '/images/decorations/tc.png',
@@ -167,17 +188,20 @@ const config: (
           label: t('Prediction (BETA)'),
           href: '/prediction',
           image: '/images/decorations/prediction.png',
-        },*/
+        },
+        */
         {
           label: t('Lottery'),
           href: '/lottery',
           image: '/images/decorations/lottery.png',
         },
-        /*{
+        /*
+        {
           label: t('Pottery (BETA)'),
           href: '/pottery',
           image: '/images/decorations/lottery.png',
-        },*/
+        },
+        */
       ],
     },
     {
@@ -185,10 +209,11 @@ const config: (
       href: `${nftsBaseUrl}`,
       icon: NftIcon,
       fillIcon: NftFillIcon,
-      supportChainIds: SUPPORT_ONLY_BSC,
+      supportChainIds: SUPPORT_FARMS,
       image: '/images/decorations/nft.png',
       items: [
-        /*{
+        /*
+        {
           label: t('Overview'),
           href: `${nftsBaseUrl}`,
         },
@@ -199,7 +224,8 @@ const config: (
         {
           label: t('Activity'),
           href: `${nftsBaseUrl}/activity`,
-        },*/
+        },
+        */
         {
           label: t('Collection'),
           href: "https://opensea.io",
@@ -217,12 +243,13 @@ const config: (
           label: t('Info'),
           href: '/info',
         },
-        /*{
+        {
           label: t('IFO'),
           href: '/ifo',
           supportChainIds: SUPPORT_ONLY_BSC,
           image: '/images/ifos/ifo-bunny.png',
         },
+        /*
         {
           label: t('Affiliate Program'),
           href: '/affiliates-program',
@@ -232,11 +259,13 @@ const config: (
           href: '/voting',
           supportChainIds: SUPPORT_ONLY_BSC,
           image: '/images/voting/voting-bunny.png',
-        },*/
+        },
+        */
         {
           type: DropdownMenuItemType.DIVIDER,
         },
-        /*{
+        /*
+        {
           label: t('Leaderboard'),
           href: '/teams',
           supportChainIds: SUPPORT_ONLY_BSC,
@@ -249,7 +278,8 @@ const config: (
           label: t('Blog'),
           href: 'https://blog.pancakeswap.finance',
           type: DropdownMenuItemType.EXTERNAL_LINK,
-        },*/
+        },
+        */
         {
           label: t('Docs'),
           href: 'https://docs.pancakeswap.finance',

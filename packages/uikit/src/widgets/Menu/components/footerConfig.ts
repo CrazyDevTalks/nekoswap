@@ -7,24 +7,24 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     items: [
       {
         label: t("Contact"),
-        href: "https://docs.pancakeswap.finance/contact-us",
-        isHighlighted: true,
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contact-us/customer-support",
+        // isHighlighted: true,
       },
       {
         label: t("Brand"),
-        href: "https://docs.pancakeswap.finance/brand",
+        href: "",
       },
       {
         label: t("Blog"),
-        href: "https://blog.pancakeswap.finance/",
+        href: "",
       },
       {
         label: t("Community"),
-        href: "https://docs.pancakeswap.finance/contact-us/telegram",
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contact-us/social-media-and-links",
       },
       {
         label: t("Litepaper"),
-        href: "https://v2litepaper.pancakeswap.finance/",
+        href: "https://litepaper.nekoswap/",
       },
     ],
   },
@@ -33,11 +33,15 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     items: [
       {
         label: t("Customer Support"),
-        href: "https://docs.pancakeswap.finance/contact-us/customer-support",
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contact-us/customer-support",
+      },
+      {
+        label: t("FAQ"),
+        href: "https://nekoprotocol.gitbook.io/nekoswap/nekoswap-intro/help/faq",
       },
       {
         label: t("Troubleshooting"),
-        href: "https://docs.pancakeswap.finance/help/troubleshooting",
+        href: "https://nekoprotocol.gitbook.io/nekoswap/nekoswap-intro/help/troubleshooting",
       },
       {
         label: t("Guides"),
@@ -50,23 +54,23 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     items: [
       {
         label: "Github",
-        href: "https://github.com/pancakeswap",
+        href: "https://github.com",
       },
       {
         label: t("Documentation"),
-        href: "https://docs.pancakeswap.finance",
+        href: "https://nekoprotocol.gitbook.io/nekoswap",
       },
       {
         label: t("Bug Bounty"),
-        href: "https://docs.pancakeswap.finance/code/bug-bounty",
-      },
-      {
-        label: t("Audits"),
-        href: "https://docs.pancakeswap.finance/help/faq#is-pancakeswap-safe-has-pancakeswap-been-audited",
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contribute/bug-bounty",
       },
       {
         label: t("Careers"),
-        href: "https://docs.pancakeswap.finance/hiring/become-a-chef",
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contribute/we-are-hiring",
+      },
+      {
+        label: t("Partnerships"),
+        href: "https://nekoprotocol.gitbook.io/nekoswap/contact-us/colalboration-and-partnerships",
       },
     ],
   },

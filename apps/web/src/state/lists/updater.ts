@@ -28,7 +28,7 @@ export default function Updater(): null {
 
   useEffect(() => {
     if (isReady) {
-      dispatch(updateListVersion())
+      // dispatch(updateListVersion())
     }
   }, [dispatch, isReady])
 

@@ -25,7 +25,7 @@ const StyledCard = styled(Card)`
 `;
 
 const SearchInput = styled(Input)`
-  width: 50%;
+  width: 600px;
   margin-right: 10px;
 `;
 
@@ -51,6 +51,7 @@ const PumpFun: React.FC<PumpFunProps> = ({ initialView = 'home', initialTokenAdd
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTokenAddress, setSelectedTokenAddress] = useState(initialTokenAddress);
+  const [selectedTokenInfo, setSelectedTokenInfo] = useState(null)
 
   const router = useRouter();
 
@@ -70,7 +71,7 @@ const PumpFun: React.FC<PumpFunProps> = ({ initialView = 'home', initialTokenAdd
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
       const memeTokens = await contract.getAllMemeTokens();
-
+      console.log("memeTokens",memeTokens)
       setCards(
         memeTokens.map(token => ({
           name: token.name,
@@ -118,6 +119,7 @@ const PumpFun: React.FC<PumpFunProps> = ({ initialView = 'home', initialTokenAdd
           <StyledCard key={`${card.tokenAddress}-${card.name}`} m="10px" onClick={() => {
             setSelectedTokenAddress(card.tokenAddress);
             setView('detail');
+            setSelectedTokenInfo(card)
           }}>
               <ImageContainer>
                 <img src={card.tokenImageUrl} alt={card.name} />
@@ -135,7 +137,7 @@ const PumpFun: React.FC<PumpFunProps> = ({ initialView = 'home', initialTokenAdd
   return (
     <Box maxWidth="1200px" margin="0 auto" padding="24px">
       {view === 'home' && renderHome()}
-      {view === 'detail' && <TokenDetail tokenAddress={selectedTokenAddress} onBack={() => setView('home')} />}
+      {view === 'detail' && <TokenDetail tokenAddress={selectedTokenAddress} tokenInfo={selectedTokenInfo} onBack={() => setView('home')} />}
       {view === 'create' && <TokenCreate onBack={() => setView('home')} />}
     </Box>
   );
