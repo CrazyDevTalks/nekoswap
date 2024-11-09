@@ -713,7 +713,7 @@ const validateLockupTime = (value: string): boolean => {
             <Text fontSize="12px" color="textSubtle" mt="8px">
               {t('URL must end with a supported image extension png, jpg, jpeg or gif. You can upload your image at')}
               <br />
-              <Text as="span" color="primary">https://upload.flashlaunch.com/</Text>
+              <Text as="span" color="primary">https://upload</Text>
             </Text>
           </InputWrapper>
 

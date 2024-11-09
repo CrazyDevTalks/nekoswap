@@ -498,7 +498,7 @@ const Launchpad = () => {
                 <Text fontSize="12px" color="textSubtle" mb="24px">
                   {t('URL must end with a supported image extension png, jpg, jpeg or gif. You can upload your image at')}
                   <br />
-                  <Text as="span" color="primary">https://upload.flashlaunch.com/</Text>
+                  <Text as="span" color="primary">https://upload</Text>
                 </Text>
 
                 <StyledInput
